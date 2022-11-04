@@ -124,15 +124,18 @@ module Match
       end
 
       if Spaceship::ConnectAPI.client.in_house? && (type == "distribution" || type == "enterprise")
-        UI.error("---")
-        UI.error("⚠️ Warning: This seems to be an Enterprise account!")
-        unless self.safe_remove_certs
-          UI.error("By nuking your account's distribution, all your apps deployed via ad-hoc will stop working!") if type == "distribution"
-          UI.error("By nuking your account's enterprise, all your in-house apps will stop working!") if type == "enterprise"
+        puts "force nuke certs = #{params[:force_nuke_dist_certs]}"
+        unless params[:force_nuke_dist_certs]
+          UI.error("---")
+          UI.error("⚠️ Warning: This seems to be an Enterprise account!")
+          unless self.safe_remove_certs
+            UI.error("By nuking your account's distribution, all your apps deployed via ad-hoc will stop working!") if type == "distribution"
+            UI.error("By nuking your account's enterprise, all your in-house apps will stop working!") if type == "enterprise"
+          end
+          UI.error("---")
+          print_safe_remove_certs_hint
+          UI.user_error!("Enterprise account nuke cancelled") unless UI.confirm("Do you really want to nuke your Enterprise account?")
         end
-        UI.error("---")
-        print_safe_remove_certs_hint
-        UI.user_error!("Enterprise account nuke cancelled") unless UI.confirm("Do you really want to nuke your Enterprise account?")
       end
     end
 
